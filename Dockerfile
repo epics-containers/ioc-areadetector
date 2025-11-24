@@ -8,10 +8,6 @@ ARG DEVELOPER=${REGISTRY}/ioc-asyn${IMAGE_EXT}-developer:${BASE}
 ##### build stage ##############################################################
 FROM  ${DEVELOPER} AS developer
 
-# Get the current version of ibek
-COPY requirements.txt requirements.txt
-RUN uv pip install --upgrade -r requirements.txt
-
 WORKDIR ${SOURCE_FOLDER}/ibek-support
 
 COPY ibek-support/_ansible _ansible

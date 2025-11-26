@@ -1,9 +1,8 @@
 ARG IMAGE_EXT
 
-ARG BASE=4.45ec1
 ARG REGISTRY=ghcr.io/epics-containers
-ARG RUNTIME=${REGISTRY}/ioc-asyn${IMAGE_EXT}-runtime:${BASE}
-ARG DEVELOPER=${REGISTRY}/ioc-asyn${IMAGE_EXT}-developer:${BASE}
+ARG RUNTIME=${REGISTRY}/epics-base${IMAGE_EXT}-runtime:7.0.9ec5
+ARG DEVELOPER=${REGISTRY}/ioc-asyn${IMAGE_EXT}-developer:4.45ec2
 
 ##### build stage ##############################################################
 FROM  ${DEVELOPER} AS developer
@@ -19,21 +18,6 @@ RUN ansible.sh ADCore
 COPY ibek-support/ffmpegServer/ ffmpegServer
 RUN ansible.sh ffmpegServer
 
-##### runtime preparation stage ################################################
-FROM developer AS runtime_prep
-
-# get the products from the build stage and reduce to runtime assets only
-# TODO /python is created by uv - add to apt-install-runtime-packages' defaults
-RUN ibek ioc extract-runtime-assets /assets /python
-
-##### runtime stage ############################################################
-FROM ${RUNTIME} AS runtime
-
-# get runtime assets from the preparation stage
-COPY --from=runtime_prep /assets /
-
-# install runtime system dependencies, collected from install.sh scripts
-RUN ibek support apt-install-runtime-packages
-
-# launch the startup script with stdio-expose to allow console connections
-CMD ["bash", "-c", "${IOC}/start.sh"]
+# this IOC is not useful in its own right so we do not build a runtime image
+# this means that testing of the modules is deferred to the detector
+# specific generic IOCs that use this as a base image.

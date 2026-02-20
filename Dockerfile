@@ -7,6 +7,9 @@ ARG DEVELOPER=${REGISTRY}/ioc-asyn${IMAGE_EXT}-developer:4.45ec3
 ##### build stage ##############################################################
 FROM  ${DEVELOPER} AS developer
 
+# make sure that apt can find the packages in ADCore and ffmpegServer
+RUN apt-get update -y
+
 WORKDIR ${SOURCE_FOLDER}/ibek-support
 
 COPY ibek-support/_ansible _ansible
